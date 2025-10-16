@@ -40,6 +40,6 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.organization=your_org_name
-            -Dsonar.projectKey=your_org_name_your_repo
+            -Dsonar.organization=test-sonar-qube123
+            -Dsonar.projectKey=test-sonar-qube123
             -Dsonar.python.coverage.reportPaths=coverage.xml
