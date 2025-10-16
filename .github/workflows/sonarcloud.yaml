@@ -26,13 +26,35 @@ jobs:
           pip install -r requirements.txt
           pip install -r requirements-sonarqube.txt
 
-      # 👇 This ensures Python can find your 'app' package during pytest
       - name: Add repo root to PYTHONPATH
         run: echo "PYTHONPATH=$PWD" >> $GITHUB_ENV
 
       - name: Run tests with coverage
         run: |
-          pytest tests --cov=app --cov-report=xml
+          pytest tests --cov=app --cov-report=xml --cov-report=term-missing
+
+      - name: Show tested files
+        run: |
+          coverage json -o coverage.json
+          python - <<'PY'
+          import json
+          data = json.load(open("coverage.json"))
+          covered = []
+          not_covered = []
+          for f, info in data["files"].items():
+              covered_lines = info["summary"]["covered_lines"]
+              total_lines = info["summary"]["num_statements"]
+              if covered_lines > 0:
+                  covered.append(f"{f}  ✅ ({covered_lines}/{total_lines} lines)")
+              else:
+                  not_covered.append(f"{f}  ❌ (0/{total_lines} lines)")
+          print("\n=== Files Covered by Tests ===")
+          for f in covered:
+              print(f)
+          print("\n=== Files NOT Covered ===")
+          for f in not_covered:
+              print(f)
+          PY
 
       - name: Run SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v3
